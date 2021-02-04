@@ -1,0 +1,42 @@
+{
+  "name": "qlee3",
+	"displayName": "한글 초성 변수 찾기",
+	"description": "한글 초성으로 한글 변수, 함수명 찾기",
+	"publisher": "qlee3",
+	"version": "0.0.1",
+	"engines": {
+		"vscode": "^1.52.0"
+	},
+	"categories": [
+		"Other"
+	],
+	"activationEvents": [
+		"onLanguage:javascript",
+		"onLanguage:typescript"
+	],
+	"main": "./extension.js",
+	"contributes": {
+		"commands": [{
+            "command": "qlee3.chosung",
+            "title": "Hello 초성으로 찾기"
+
+		}]
+	},
+	"scripts": {
+		"lint": "eslint .",
+		"pretest": "yarn run lint",
+		"test": "node ./test/runTest.js"
+	},
+	"devDependencies": {
+        "@types/vscode": "^1.52.0",
+        "@types/glob": "^7.1.3",
+        "@types/mocha": "^8.0.4",
+        "@types/node": "^12.11.7",
+        "eslint": "^7.19.0",
+        "glob": "^7.1.6",
+        "mocha": "^8.2.1",
+        "typescript": "^4.1.3",
+        "vscode-test": "^1.5.0"
+    }
+
+}
