@@ -38,10 +38,12 @@ function activate(context) {
     ];
     let 초성 = "";
 
-    for (let i = 0; i < str.length; i++) {
-      let code = str.charCodeAt(i) - 44032;
-      if (code > -1 && code < 11172) 초성 += cho[Math.floor(code / 588)];
-    }
+    Array.from({ length: str.length }).forEach((_, index) => {
+      let code = str.charCodeAt(index) - 44032;
+      if (code > -1 && code < 11172) {
+        초성 += cho[Math.floor(code / 588)];
+      }
+    });
     return 초성;
   };
 
@@ -51,10 +53,11 @@ function activate(context) {
       .map((문장) => 문장.replace(/^\s+|\s+$/g, ""))
       .filter((문장) => {
         // 문장이 const나 let이나, var로 시작해야함
-        if (문장.indexOf("const ") >= 0) return true;
-        if (문장.indexOf("let ") >= 0) return true;
-        if (문장.indexOf("var ") >= 0) return true;
-        return false;
+        return (
+          문장.indexOf("const ") >= 0 ||
+          문장.indexOf("let ") >= 0 ||
+          문장.indexOf("var ") >= 0
+        );
       })
       .map((문장) => {
         // const, let, var 지우기
@@ -86,8 +89,7 @@ function activate(context) {
       })
       .filter((변수세트) => {
         // 한글포함한 변수명만 찾기
-        if (변수세트.초성.length === 0) return false;
-        return true;
+        return 변수세트.초성.length > 0;
       })
       .map((변수세트) => {
         // 변수 만들기
