@@ -47,59 +47,59 @@ function activate(context) {
     return 초성;
   };
 
-  const 변수세트배열 = (document) => {
-    const 변수배열 = document
-      .split("\n") // 문장 나누기
-      .map((문장) => 문장.replace(/^\s+|\s+$/g, ""))
-      .filter((문장) => {
-        // 문장이 const나 let이나, var로 시작해야함
-        return (
-          문장.indexOf("const ") >= 0 ||
-          문장.indexOf("let ") >= 0 ||
-          문장.indexOf("var ") >= 0
-        );
-      })
-      .map((문장) => {
-        // const, let, var 지우기
-        if (문장.indexOf("const ") >= 0)
-          return 문장.substring(문장.indexOf("const ") + 6, 문장.length);
-        if (문장.indexOf("let ") >= 0)
-          return 문장.substring(문장.indexOf("let ") + 4, 문장.length);
-        if (문장.indexOf("var ") >= 0)
-          return 문장.substring(문장.indexOf("let ") + 4, 문장.length);
-        return 문장;
-      })
-      .map((문장) => {
-        // 변수명으로 자르기, 초성 찾기
-        const 타입선택자 = 문장.indexOf(":");
-        const 값할당자 = 문장.indexOf("=");
-        const 땀땀 = 문장.indexOf(";");
-        const 자를위치 = Math.min(
-          Math.min(
-            타입선택자 < 0 ? 문장.length : 타입선택자,
-            값할당자 < 0 ? 문장.length : 값할당자
-          ),
-          땀땀 < 0 ? 문장.length : 땀땀
-        );
-        const 변수 = 문장.substring(0, 자를위치).replace(/^\s+|\s+$/g, "");
-        return {
-          변수,
-          초성: 초성추출(변수),
-        };
-      })
-      .filter((변수세트) => {
-        // 한글포함한 변수명만 찾기
-        return 변수세트.초성.length > 0;
-      })
-      .map((변수세트) => {
-        // 변수 만들기
-        return {
-          label: 변수세트.변수,
-          kind: vscode.CompletionItemKind.Variable,
-          filterText: 변수세트.초성,
-        };
+  const 만들기_줄로나눈_배열 = (document) => {
+    return document.split("\n");
+  };
+
+  const 제거_문자열타입 = (문장배열) => {
+    return 문장배열.map((문장) =>
+      문장
+        .replace(/".*?"/g, "")
+        .replace(/`.*?`/g, "")
+        .replace(/'.*?'/g, "")
+        .replace(/\(/g, " ") // 특수문자를 취급 안하기 위해 추가
+        .replace(/\)/g, " ")
+        .replace(/\{/g, " ")
+        .replace(/\{/g, " ")
+        .replace(/\[/g, " ")
+        .replace(/\]/g, " ")
+        .replace(/</g, " ")
+        .replace(/>/g, " ")
+        .replace(/,/g, " ")
+        .replace(/\?/g, " ")
+        .replace(/;/g, " ")
+        .replace(/!/g, " ")
+        .replace(/:/g, " ")
+        .trim()
+    );
+  };
+
+  const 추출_한글 = (문장배열) => {
+    const 한글셋 = 문장배열.map((문장) => {
+      const 단어배열 = 문장.split(" ");
+      const 한글단어배열 = 단어배열.filter((단어) => {
+        const 한국어 = /[ㄱ-ㅎ|ㅏ-ㅣ|가-힣]/;
+        const 점있는거 = /\./;
+        return 한국어.test(단어) && !점있는거.test(단어);
       });
-    return 변수배열;
+      return 한글단어배열;
+    });
+    return 한글셋.flat();
+  };
+
+  const 제거_중복단어 = (배열) => {
+    return Array.from(new Set(배열));
+  };
+
+  const 만들기_초성변수세트 = (단어배열) => {
+    return 단어배열.map((단어) => {
+      // 변수 만들기
+      return {
+        label: 단어,
+        kind: vscode.CompletionItemKind.Variable,
+        filterText: 초성추출(단어),
+      };
+    });
   };
 
   const 초성으로찾은변수들 = vscode.languages.registerCompletionItemProvider(
@@ -110,8 +110,12 @@ function activate(context) {
     {
       provideCompletionItems(doc) {
         const documentText = doc.getText();
-        const 힌트세트 = 변수세트배열(documentText);
-        return 힌트세트;
+        const 줄로나눈배열 = 만들기_줄로나눈_배열(documentText);
+        const 문자열제거배열 = 제거_문자열타입(줄로나눈배열);
+        const 추출된한글단어배열 = 추출_한글(문자열제거배열);
+        const 중복_제거된_단어 = 제거_중복단어(추출된한글단어배열);
+        const 초성변수세트 = 만들기_초성변수세트(중복_제거된_단어);
+        return 초성변수세트;
       },
     }
   );
