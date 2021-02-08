@@ -106,6 +106,8 @@ function activate(context) {
     [
       { scheme: "file", language: "typescript" },
       { scheme: "file", language: "javascript" },
+      { scheme: "file", language: "javascriptreact" },
+      { scheme: "file", language: "typescriptreact" },
     ],
     {
       provideCompletionItems(doc) {
