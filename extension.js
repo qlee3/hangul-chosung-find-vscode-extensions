@@ -54,6 +54,8 @@ function activate(context) {
   const 제거_문자열타입 = (문장배열) => {
     return 문장배열.map((문장) =>
       문장
+        .replace(/\/\*[^>](.*?)\*\//g, "")
+        .replace(/\/\/.*/g, "")
         .replace(/".*?"/g, "")
         .replace(/`.*?`/g, "")
         .replace(/'.*?'/g, "")
